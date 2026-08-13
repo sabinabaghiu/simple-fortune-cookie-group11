@@ -61,7 +61,7 @@ jobs:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
         run: ./scripts/deploy.sh
   automated-test:
-    needs: push-images
+    needs: docker
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
