@@ -60,3 +60,21 @@ jobs:
         env:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
         run: ./scripts/deploy.sh
+  automated-test:
+    needs: docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Create kubeconfig
+        run: echo "${{ secrets.KUBECONFIG }}" | base64 -d > kubeconfig
+      - name: Deploy test version
+        run: kubectl --kubeconfig kubeconfig apply -f kubernetes/test/
+      - name: Wait for frontend
+        run: kubectl --kubeconfig kubeconfig rollout status deployment/frontend-test --timeout=120s
+      - name: Port forward frontend
+        run: |
+          kubectl --kubeconfig kubeconfig port-forward service/frontend-test 8080:8080 &
+          sleep 5
+      - name: Run automated test
+        run: ./scripts/automated-test.sh http://localhost:8080
