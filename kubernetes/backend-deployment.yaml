@@ -15,5 +15,6 @@ spec:
       containers:
         - name: backend
           image: sabinabaghiu/backend:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 9000
